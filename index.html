@@ -1,4 +1,65 @@
-<!-- redirect.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Three.js GLB Demo</title>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { width: 100%; height: 100% }
+    </style>
+  </head>
+  <body>
+    <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.157.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+      let scene, camera, renderer, model;
+
+      init();
+      animate();
+
+      function init() {
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2, 5);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(2, 2, 5);
+        scene.add(light);
+
+        const loader = new THREE.GLTFLoader();
+        loader.load("https://modelviewer.dev/shared-assets/models/Astronaut.glb", function (gltf) {
+          model = gltf.scene;
+          model.scale.set(1, 1, 1);
+          scene.add(model);
+        });
+
+        // Nhận message từ RN
+        window.document.addEventListener("message", function (event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (model) {
+              model.rotation.y = data.rotation || 0;
+              model.position.x = data.x || 0;
+              model.position.z = data.z || 0;
+            }
+          } catch (e) {}
+        });
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>
+
+<!-- redirect.html
 <!DOCTYPE html>
 <html>
   <head>
@@ -11,4 +72,4 @@
     <title>Redirecting...</title>
   </head>
   </body>
-</html>
+</html> -->
