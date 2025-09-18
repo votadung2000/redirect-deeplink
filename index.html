@@ -5,71 +5,60 @@
     <title>Three.js GLB Demo</title>
     <style>
       body { margin: 0; overflow: hidden; }
-      canvas { width: 100%; height: 100% }
+      canvas { display: block; }
     </style>
   </head>
   <body>
     <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.157.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
-      let scene, camera, renderer, model;
+      let scene = new THREE.Scene();
+      let camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100
+      );
+      camera.position.set(0, 2, 5);
 
-      init();
-      animate();
+      let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
-      function init() {
-        scene = new THREE.Scene();
+      // Light
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(2, 2, 5);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5)); // thêm ánh sáng nền
 
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 2, 5);
-
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(2, 2, 5);
-        scene.add(light);
-
-        const loader = new THREE.GLTFLoader();
-        loader.load("https://modelviewer.dev/shared-assets/models/Astronaut.glb", function (gltf) {
-          model = gltf.scene;
-          model.scale.set(1, 1, 1);
+      // Load model
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+        (gltf) => {
+          const model = gltf.scene;
+          model.scale.set(2, 2, 2);
           scene.add(model);
-        });
 
-        // Nhận message từ RN
-        window.document.addEventListener("message", function (event) {
-          try {
-            const data = JSON.parse(event.data);
-            if (model) {
-              model.rotation.y = data.rotation || 0;
-              model.position.x = data.x || 0;
-              model.position.z = data.z || 0;
-            }
-          } catch (e) {}
-        });
-      }
+          animate();
+        },
+        undefined,
+        (error) => {
+          console.error("Error loading model:", error);
+        }
+      );
 
       function animate() {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
       }
+
+      // Resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
     </script>
   </body>
 </html>
-
-<!-- redirect.html
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="refresh" content="0;url=aitravel://app/new_password" />
-    <script>
-      window.onload = function () {
-        window.location.href = "aitravel://app/new_password";
-      };
-    </script>
-    <title>Redirecting...</title>
-  </head>
-  </body>
-</html> -->
