@@ -2,58 +2,87 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Model Viewer Demo</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <title>Three.js GLB Model</title>
     <style>
       body {
         margin: 0;
-        background: transparent;
         overflow: hidden;
+        background: transparent;
       }
-      model-viewer {
-        width: 100%;
-        height: 100vh;
+      canvas {
+        display: block;
       }
     </style>
   </head>
   <body>
-    <model-viewer
-      id="viewer"
-      src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-      ios-src="https://modelviewer.dev/shared-assets/models/Astronaut.usdz"
-      auto-rotate
-      camera-controls
-      ar
-      disable-zoom
-      style="background: transparent"
-    >
-    </model-viewer>
-
+    <!-- Three.js + GLTFLoader -->
+    <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.157.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
-      // Nhận dữ liệu từ React Native WebView
-      window.addEventListener("message", (event) => {
+      let scene = new THREE.Scene();
+      let camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100
+      );
+      camera.position.set(0, 1.5, 3);
+
+      let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // lights
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+      dirLight.position.set(3, 5, 5);
+      scene.add(dirLight);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+      let model;
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+        (gltf) => {
+          model = gltf.scene;
+          model.scale.set(1.5, 1.5, 1.5);
+          scene.add(model);
+          animate();
+        },
+        undefined,
+        (error) => {
+          console.error("Error loading model:", error);
+        }
+      );
+
+      // animate loop
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+
+      // nhận message từ RN (rotation, scale)
+      document.addEventListener("message", (event) => {
         try {
           const data = JSON.parse(event.data);
-          const viewer = document.getElementById("viewer");
-
-          if (viewer && data.rotation !== undefined) {
-            // Xoay quanh trục Y theo radian
-            viewer.setAttribute(
-              "rotation",
-              `0 ${data.rotation} 0`
-            );
+          if (model) {
+            if (data.rotation !== undefined) {
+              model.rotation.y = data.rotation; // xoay quanh trục Y
+            }
+            if (data.scale !== undefined) {
+              const s = Math.max(0.1, data.scale); // scale min 0.1
+              model.scale.set(s, s, s);
+            }
           }
-
-          if (viewer && (data.x !== undefined || data.z !== undefined)) {
-            // Dịch chuyển position
-            viewer.setAttribute(
-              "position",
-              `${data.x || 0} 0 ${data.z || 0}`
-            );
-          }
-        } catch (err) {
-          console.error("Invalid message from RN:", err);
+        } catch (e) {
+          console.log("Parse error:", e);
         }
+      });
+
+      // handle resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
       });
     </script>
   </body>
