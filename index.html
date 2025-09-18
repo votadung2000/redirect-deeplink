@@ -18,6 +18,7 @@
   </head>
   <body>
     <model-viewer
+      id="viewer"
       src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
       ios-src="https://modelviewer.dev/shared-assets/models/Astronaut.usdz"
       auto-rotate
@@ -27,5 +28,33 @@
       style="background: transparent"
     >
     </model-viewer>
+
+    <script>
+      // Nhận dữ liệu từ React Native WebView
+      window.addEventListener("message", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const viewer = document.getElementById("viewer");
+
+          if (viewer && data.rotation !== undefined) {
+            // Xoay quanh trục Y theo radian
+            viewer.setAttribute(
+              "rotation",
+              `0 ${data.rotation} 0`
+            );
+          }
+
+          if (viewer && (data.x !== undefined || data.z !== undefined)) {
+            // Dịch chuyển position
+            viewer.setAttribute(
+              "position",
+              `${data.x || 0} 0 ${data.z || 0}`
+            );
+          }
+        } catch (err) {
+          console.error("Invalid message from RN:", err);
+        }
+      });
+    </script>
   </body>
 </html>
