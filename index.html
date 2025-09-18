@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Model Viewer Demo</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
+    ></script>
     <style>
       body {
         margin: 0;
@@ -18,16 +21,33 @@
   </head>
   <body>
     <model-viewer
-      id="viewer"
+      src="https://cdn.jsdelivr.net/gh/your-username/models/motorcycle.glb"
+      ios-src="https://cdn.jsdelivr.net/gh/your-username/models/motorcycle.usdz"
+      auto-rotate
+      camera-controls
+      ar
+      alt="Motorcycle 3D"
+    ></model-viewer>
+
+    <!-- Ô tô -->
+    <model-viewer
+      src="https://cdn.jsdelivr.net/gh/your-username/models/car.glb"
+      ios-src="https://cdn.jsdelivr.net/gh/your-username/models/car.usdz"
+      auto-rotate
+      camera-controls
+      ar
+      alt="Car 3D"
+    ></model-viewer>
+
+    <!-- Phi hành gia (ví dụ reference) -->
+    <model-viewer
       src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
       ios-src="https://modelviewer.dev/shared-assets/models/Astronaut.usdz"
       auto-rotate
       camera-controls
       ar
-      disable-zoom
-      style="background: transparent"
-    >
-    </model-viewer>
+      alt="Astronaut"
+    ></model-viewer>
 
     <script>
       // Nhận dữ liệu từ React Native WebView
@@ -38,18 +58,12 @@
 
           if (viewer && data.rotation !== undefined) {
             // Xoay quanh trục Y theo radian
-            viewer.setAttribute(
-              "rotation",
-              `0 ${data.rotation} 0`
-            );
+            viewer.setAttribute("rotation", `0 ${data.rotation} 0`);
           }
 
           if (viewer && (data.x !== undefined || data.z !== undefined)) {
             // Dịch chuyển position
-            viewer.setAttribute(
-              "position",
-              `${data.x || 0} 0 ${data.z || 0}`
-            );
+            viewer.setAttribute("position", `${data.x || 0} 0 ${data.z || 0}`);
           }
         } catch (err) {
           console.error("Invalid message from RN:", err);
