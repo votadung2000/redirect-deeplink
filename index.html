@@ -1,54 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <title>Model Viewer Demo</title>
-    <script
-      type="module"
-      src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-    ></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Successful</title>
+
     <style>
       body {
-        margin: 0;
-        background: transparent;
-        overflow: hidden;
-      }
-      model-viewer {
-        width: 100%;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f9fafb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 360px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        text-align: center;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      p {
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      button {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+      }
+      button:active {
+        background: #1e40af;
       }
     </style>
   </head>
+
   <body>
-    <!-- Phi hành gia (ví dụ reference) -->
-    <model-viewer
-      src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-      ios-src="https://modelviewer.dev/shared-assets/models/Astronaut.usdz"
-      auto-rotate
-      camera-controls
-      alt="Astronaut"
-    ></model-viewer>
+    <div class="card">
+      <h1>✅ Payment Successful</h1>
+      <p>We're redirecting you back to the app.</p>
 
-    <script>
-      // Nhận dữ liệu từ React Native WebView
-      window.addEventListener("message", (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          const viewer = document.getElementById("viewer");
+      <button onclick="openApp()">Open App</button>
+    </div>
 
-          if (viewer && data.rotation !== undefined) {
-            // Xoay quanh trục Y theo radian
-            viewer.setAttribute("rotation", `0 ${data.rotation} 0`);
-          }
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      const deepLink =
+        "thedandan://app/booking_success?bookingId=321&status=SUCCESS";
 
-          if (viewer && (data.x !== undefined || data.z !== undefined)) {
-            // Dịch chuyển position
-            viewer.setAttribute("position", `${data.x || 0} 0 ${data.z || 0}`);
-          }
-        } catch (err) {
-          console.error("Invalid message from RN:", err);
-        }
-      });
+      function openApp() {
+        window.location.href = deepLink;
+      }
+
+      // auto redirect
+      setTimeout(openApp, 300);
+      /*]]>*/
     </script>
   </body>
 </html>
